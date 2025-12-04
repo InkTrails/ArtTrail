@@ -12,24 +12,23 @@ from django.views.generic import DeleteView
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_POST
 
-# --- 1. トップページ（ロジック改良版） ---
+# トップページ
 def index(request):
-    # ▼▼▼ 1. 誰を表示するか決める ▼▼▼
+    # 表示ユーザの決定
     target_username = request.GET.get('user')
     display_user = None
 
     if target_username:
-        # パターンA: 共有URL（?user=〇〇）なら、その人を表示
+        # 共有URLのみなら共有用として表示
         display_user = get_object_or_404(User, username=target_username)
     elif request.user.is_authenticated:
-        # パターンB: ログイン中なら、自分を表示
-        # ★ここを修正しました！ (request.request.user → request.user)
+        # ログイン済みの場合自分を表示
         display_user = request.user
     else:
-        # パターンC: 未ログイン＆指定なしなら、ログイン画面へ飛ばす！
+        # 未ログインかつ非共有URLの場合ログインページへ
         return redirect('login')
-    # ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
+    # 時間取得
     today = timezone.now().date()
 
     # 年月取得
@@ -41,11 +40,14 @@ def index(request):
         current_month = today.month
 
     # カレンダー計算
+    # １日の曜日と総日数を取得
     first_weekday, days_in_month = calendar.monthrange(current_year, current_month)
     calendar_data = []
+    # 日曜日開始に合わせるためのempty
     empty_count = (first_weekday + 1) % 7
     for _ in range(empty_count):
         calendar_data.append({'is_empty': True})
+    #マスの作成
     for day in range(1, days_in_month + 1):
         target_date = date(current_year, current_month, day)
         calendar_data.append({
@@ -56,11 +58,11 @@ def index(request):
             'color': 'bg-light text-muted'
         })
 
-    # ▼▼▼ 2. データ取得（display_user のデータだけを取る） ▼▼▼
+    # データ取得
     # 作品リスト
     posts_list = ArtPost.objects.filter(author=display_user).order_by('-created_at')
     
-    # もし「本人じゃない（他人）」が見ているなら、模写は隠す
+    # 他人の場合摸写を非表示
     if request.user != display_user:
         posts_list = posts_list.filter(is_practice=False)
 
@@ -68,7 +70,6 @@ def index(request):
     month_logs = ArtPost.objects.filter(author=display_user, created_at__year=current_year, created_at__month=current_month)
     if request.user != display_user:
         month_logs = month_logs.filter(is_practice=False)
-    # ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     # タグ絞り込み
     tag_slug = request.GET.get('tag')
@@ -96,7 +97,7 @@ def index(request):
     else:
         next_year, next_month = current_year, current_month + 1
 
-    # ページネーション
+    # ページネーション(何枚まで表示するか)
     paginator = Paginator(posts_list, 12) 
     page_number = request.GET.get('page')
     posts = paginator.get_page(page_number)
@@ -113,7 +114,7 @@ def index(request):
     }
     return render(request, 'gallery/index.html', context)
 
-# --- 2. 比較機能 ---
+# 比較機能
 def compare(request):
     id1 = request.GET.get('id1')
     id2 = request.GET.get('id2')
@@ -124,13 +125,13 @@ def compare(request):
         post2 = get_object_or_404(ArtPost, id=id2)
     return render(request, 'gallery/compare.html', {'post1': post1, 'post2': post2})
 
-# --- 3. 新規登録機能 ---
+# 新規登録
 class SignUpView(generic.CreateView):
     form_class = UserCreationForm
     success_url = reverse_lazy('login')
     template_name = 'registration/signup.html'
 
-# --- 4. 投稿機能 ---
+# 投稿機能
 class UploadView(LoginRequiredMixin, generic.CreateView):
     model = ArtPost
     fields = ['title', 'image', 'is_practice', 'tag']
@@ -138,10 +139,10 @@ class UploadView(LoginRequiredMixin, generic.CreateView):
     success_url = reverse_lazy('index')
 
     def form_valid(self, form):
-        form.instance.author = self.request.user
+        form.instance.author = self.request.user # 投稿者＝ログインユーザ
         return super().form_valid(form)
 
-# --- 5. プロフィール編集機能 ---
+# プロフィール編集
 class ProfileEditView(LoginRequiredMixin, generic.UpdateView):
     model = UserProfile
     fields = ['avatar', 'bio']
@@ -149,23 +150,23 @@ class ProfileEditView(LoginRequiredMixin, generic.UpdateView):
     success_url = reverse_lazy('index')
 
     def get_object(self, queryset=None):
-        obj, created = UserProfile.objects.get_or_create(user=self.request.user)
+        obj, created = UserProfile.objects.get_or_create(user=self.request.user) #存在しない場合作成
         return obj
 
-# --- 6. 削除機能（単体） ---
+# 削除機能
 class DeletePostView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = ArtPost
     template_name = 'gallery/post_confirm_delete.html'
     success_url = reverse_lazy('index')
 
-    def test_func(self):
+    def test_func(self): #本人のみ削除
         post = self.get_object()
         return self.request.user == post.author
 
-# --- 7. 一括削除機能 ---
+# 一括削除
 @require_POST
 def bulk_delete(request):
     ids = request.POST.getlist('delete_ids')
     if ids and request.user.is_authenticated:
-        ArtPost.objects.filter(id__in=ids, author=request.user).delete()
+        ArtPost.objects.filter(id__in=ids, author=request.user).delete() #本人確認
     return redirect('index')
