@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>イラスト投稿</title>
+</head>
+<body class="bg-light p-5">
+    <div class="card shadow p-4 mx-auto" style="max-width: 500px;">
+        <h3 class="fw-bold mb-3">🎨 イラストをアップロード</h3>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+            {% endfor %}
+            <script>document.querySelectorAll('input, select').forEach(e => e.classList.add('form-control'));</script>
+            <script>document.querySelector('input[type="checkbox"]').classList.remove('form-control'); document.querySelector('input[type="checkbox"]').classList.add('form-check-input');</script>
+            
+            <button type="submit" class="btn btn-primary w-100 fw-bold mt-2">投稿する</button>
+        </form>
+        <div class="text-center mt-3">
+            <a href="/" class="text-decoration-none">← 戻る</a>
+        </div>
+    </div>
+</body>
+</html>
