@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成長比較 - ArtTrail</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .compare-img {
+            width: 100%;
+            height: auto;
+            max-height: 70vh; 
+            object-fit: contain; 
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        .vs-circle {
+            width: 60px;
+            height: 60px;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0 auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-light">
+    
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <a href="/" class="btn btn-outline-secondary">← ギャラリーに戻る</a>
+            <h4 class="fw-bold m-0">⚔️ Before / After Check</h4>
+            <div style="width: 100px;"></div> </div>
+
+        {% if post1 and post2 %}
+        <div class="row align-items-center">
+            
+            <div class="col-md-5 text-center mb-3">
+                <div class="card border-0 shadow-sm p-2">
+                    <div class="position-relative">
+                        <span class="badge bg-secondary position-absolute top-0 start-0 m-2">Old / Base</span>
+                        <img src="{{ post1.image.url }}" class="compare-img">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="fw-bold">{{ post1.title }}</h5>
+                        <p class="text-muted small">{{ post1.created_at|date:"Y/m/d" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-2 text-center my-3">
+                <div class="vs-circle">VS</div>
+                <p class="small text-muted mt-2">Growth</p>
+            </div>
+
+            <div class="col-md-5 text-center mb-3">
+                <div class="card border-0 shadow-sm p-2">
+                    <div class="position-relative">
+                        <span class="badge bg-primary position-absolute top-0 start-0 m-2">New / Current</span>
+                        <img src="{{ post2.image.url }}" class="compare-img">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="fw-bold">{{ post2.title }}</h5>
+                        <p class="text-muted small">{{ post2.created_at|date:"Y/m/d" }}</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="text-center mt-4">
+            <p class="text-muted">過去の自分と今の自分を比べて、成長ポイントを見つけよう！</p>
+        </div>
+
+        {% else %}
+            <div class="alert alert-warning text-center">
+                画像が正しく選択されていません。ギャラリーに戻ってやり直してください。
+            </div>
+        {% endif %}
+
+    </div>
+
+</body>
+</html>
