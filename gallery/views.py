@@ -170,3 +170,8 @@ def bulk_delete(request):
     if ids and request.user.is_authenticated:
         ArtPost.objects.filter(id__in=ids, author=request.user).delete() #本人確認
     return redirect('index')
+
+# 詳細機能
+def post_detail(request, pk):
+    post = get_object_or_404(ArtPost, pk=pk)
+    return render(request, 'gallery/detail.html', {'post': post})

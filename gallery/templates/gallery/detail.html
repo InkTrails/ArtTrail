@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }} - ArtTrail</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .detail-img {
+            max-width: 100%;
+            height: auto;
+            max-height: 80vh; 
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body class="bg-light p-4">
+    
+    <div class="container my-5">
+        
+        <a href="/" class="btn btn-outline-secondary mb-4">← ギャラリーに戻る</a>
+
+        <h1 class="fw-bold mb-4">{{ post.title }}</h1>
+
+        <div class="row">
+            
+            <div class="col-md-9 text-center">
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" class="detail-img border rounded shadow-lg" alt="{{ post.title }}">
+                {% else %}
+                    <div class="alert alert-danger">画像が見つかりませんでした。</div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm p-4">
+                    <h5 class="card-title fw-bold">作品情報</h5>
+                    <ul class="list-unstyled small mt-2">
+                        <li><strong>投稿者:</strong> {{ post.author.username }}</li>
+                        <li><strong>投稿日:</strong> {{ post.created_at|date:"Y/m/d H:i" }}</li>
+                        <li><strong>カテゴリ:</strong> <span class="badge bg-dark">{{ post.get_tag_display }}</span></li>
+                        <li><strong>ステータス:</strong> 
+                            {% if post.is_practice %}
+                                <span class="badge bg-warning text-dark">⚠️ 模写 (練習中)</span>
+                            {% else %}
+                                <span class="badge bg-success">✨ オリジナル (公開)</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+                    
+                    {% if user == post.author %}
+                        <div class="d-grid gap-2 mt-3">
+                            <a href="#" class="btn btn-sm btn-outline-primary" disabled>編集 (未実装)</a> 
+                            <a href="{% url 'delete_post' post.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('削除画面へ移動しますか？');">🗑️ 削除</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

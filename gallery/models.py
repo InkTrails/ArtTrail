@@ -6,7 +6,7 @@ class ArtPost(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE) #外部キー多対一、道連れ削除
     title = models.CharField(max_length=100)
     image = models.ImageField(upload_to='posts/')
-    is_practice = models.BooleanField(default=False, verbose_name="模写（練習用）")
+    is_practice = models.BooleanField(default=False, verbose_name="模写（練習用）") #摸写フラグ
     
     TAG_CHOICES = [
         ('hand', '手の練習'),
