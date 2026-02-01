@@ -5,9 +5,8 @@
 ArtTrail（アートトレイル）は、イラスト練習の継続と成長を可視化することに特化したアプリケーションです。
 「過去の自分の絵と比較したい」「日々の努力をヒートマップで実感したい」という課題を解決するために開発しました。
 
-デモURL : [https://arttrail.onrender.com/accounts/login/](https://arttrail.onrender.com/accounts/login/)
-
-> 無料プランのRenderを使用しているため、スリープ状態からの起動に30~60秒ほどかかる場合があります。
+**🔗 デモURL (Live Demo):** (公開終了 / Currently Offline)
+*(※ サーバーの運用期間終了に伴い、現在はソースコードのみ公開しています)*
 
 ---
 
